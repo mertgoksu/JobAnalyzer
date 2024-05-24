@@ -1,115 +1,72 @@
 package com.mertg.jobanalyzer.view
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import android.widget.Toast
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mertg.jobanalyzer.util.DropdownField
 import com.mertg.jobanalyzer.viewmodel.MainPageViewModel
-import kotlinx.coroutines.joinAll
-import kotlinx.coroutines.launch
 
 @Composable
-fun MainPage(innerPadding : PaddingValues) {
-
+fun MainPage(innerPadding: PaddingValues) {
     val mainPageViewModel: MainPageViewModel = viewModel()
-
     val context = LocalContext.current
 
     var isEmriKodList by remember { mutableStateOf(listOf<String>()) }
-    var selectedIsEmriKod by remember { mutableStateOf("") }
     var islemMerkeziKodList by remember { mutableStateOf(listOf<String>()) }
-    var selectedIslemMerkeziKod by remember { mutableStateOf("") }
     var yapilanIslemList by remember { mutableStateOf(listOf<String>()) }
-    var selectedYapilanIslem by remember { mutableStateOf("") }
     var calisanNoList by remember { mutableStateOf(listOf<String>()) }
-    var selectedCalisanNo by remember { mutableStateOf("") }
     var durusNedenleriList by remember { mutableStateOf(listOf<String>()) }
-    var selectedDurusNedenleri by remember { mutableStateOf("") }
     var hataNedenleriList by remember { mutableStateOf(listOf<String>()) }
-    var selectedHataNedenleri by remember { mutableStateOf("") }
-    var fireAmount by remember { mutableStateOf("") }
-    var uretilenAmount by remember { mutableStateOf("") }
 
     var isLoading by remember { mutableStateOf(true) }
     var isDataLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         isLoading = true
-        val jobs = listOf(
-            launch {
-                mainPageViewModel.getItem(context, "IsEmriKod", "diiDGUUZr4UU5VLwRks3") { names ->
-                    isEmriKodList = names ?: listOf()
-                }
-            },
-            launch {
-                mainPageViewModel.getItem(context, "IslemMerkeziKod", "4t1NFCNOJwltlkgJnxiy") { names ->
-                    islemMerkeziKodList = names ?: listOf()
-                }
-            },
-            launch {
-                mainPageViewModel.getItem(context, "YapilanIslem", "4s20cIquhfhJZw0Tw5wo") { names ->
-                    yapilanIslemList = names ?: listOf()
-                }
-            },
-            launch {
-                mainPageViewModel.getItem(context, "CalisanNo", "IHqXsJsWW9JluauX9Bnm") { names ->
-                    calisanNoList = names ?: listOf()
-                }
-            },
-            launch {
-                mainPageViewModel.getItem(context, "DurusNedenleri", "HCp0Kd9bGRR4LiDJHdkz") { names ->
-                    durusNedenleriList = names ?: listOf()
-                }
-            },
-            launch {
-                mainPageViewModel.getItem(context, "HataNedenleri", "jsHBoCeXySHurZnIQTcM") { names ->
-                    hataNedenleriList = names ?: listOf()
-                }
-            }
-        )
-        jobs.joinAll()
-        isLoading = false
-        isDataLoaded = true
+        try {
+            val isEmriKodListDeferred = mainPageViewModel.getItemAsync(context, "IsEmriKod", "diiDGUUZr4UU5VLwRks3")
+            val islemMerkeziKodListDeferred = mainPageViewModel.getItemAsync(context, "IslemMerkeziKod", "4t1NFCNOJwltlkgJnxiy")
+            val yapilanIslemListDeferred = mainPageViewModel.getItemAsync(context, "YapilanIslem", "4s20cIquhfhJZw0Tw5wo")
+            val calisanNoListDeferred = mainPageViewModel.getItemAsync(context, "CalisanNo", "IHqXsJsWW9JluauX9Bnm")
+            val durusNedenleriListDeferred = mainPageViewModel.getItemAsync(context, "DurusNedenleri", "HCp0Kd9bGRR4LiDJHdkz")
+            val hataNedenleriListDeferred = mainPageViewModel.getItemAsync(context, "HataNedenleri", "jsHBoCeXySHurZnIQTcM")
+
+            isEmriKodList = isEmriKodListDeferred.await() ?: listOf()
+            islemMerkeziKodList = islemMerkeziKodListDeferred.await() ?: listOf()
+            yapilanIslemList = yapilanIslemListDeferred.await() ?: listOf()
+            calisanNoList = calisanNoListDeferred.await() ?: listOf()
+            durusNedenleriList = durusNedenleriListDeferred.await() ?: listOf()
+            hataNedenleriList = hataNedenleriListDeferred.await() ?: listOf()
+
+            isLoading = false
+            isDataLoaded = true
+        } catch (e: Exception) {
+            isLoading = false
+            Toast.makeText(context, "Veriler Alınamadı...", Toast.LENGTH_SHORT).show()
+        }
     }
 
     if (isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Text(text = "Yükleniyor...")
         }
     } else {
         Column(modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .padding(12.dp)
-            .padding(bottom = 4.dp)
-        ) {
+            .padding(12.dp)) {
+
             Row( // Header
                 modifier = Modifier
                     .fillMaxWidth()
@@ -117,7 +74,7 @@ fun MainPage(innerPadding : PaddingValues) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text("sa", fontSize = 34.sp)
+                Text("İş Analizi", fontSize = 34.sp)
             }
 
             Row( // Is Emri Kod
@@ -130,9 +87,9 @@ fun MainPage(innerPadding : PaddingValues) {
                 if (isEmriKodList.isNotEmpty()) {
                     DropdownField(
                         label = "İş Emri Kod:",
-                        selectedValue = selectedIsEmriKod,
+                        selectedValue = mainPageViewModel.selectedIsEmriKod,
                         options = isEmriKodList,
-                        onValueChange = { selectedIsEmriKod = "İş Emri Kod: \n$it" }
+                        onValueChange = { mainPageViewModel.selectedIsEmriKod = "İş Emri Kod: $it" }
                     )
                 } else {
                     Text("İş Emri listesi yükleniyor")
@@ -149,71 +106,28 @@ fun MainPage(innerPadding : PaddingValues) {
                 if (islemMerkeziKodList.isNotEmpty()) {
                     DropdownField(
                         label = "İşlem Merkezi Kod:",
-                        selectedValue = selectedIslemMerkeziKod,
-                        options = calisanNoList,
-                        onValueChange = { selectedIslemMerkeziKod = "İşlem Merkezi Kod: \n$it" }
+                        selectedValue = mainPageViewModel.selectedIslemMerkeziKod,
+                        options = islemMerkeziKodList,
+                        onValueChange = { mainPageViewModel.selectedIslemMerkeziKod ="İşlem Merkezi Kod: $it" }
                     )
                 } else {
                     Text("İşlem Merkezi listesi yükleniyor")
                 }
             }
 
-
-            /* Row(
-                 modifier = Modifier
-                     .fillMaxWidth()
-                     .weight(1f),
-                 verticalAlignment = Alignment.CenterVertically,
-                 horizontalArrangement = Arrangement.Center
-             ) {
-                 Column( // Is Emri Kod
-                     modifier = Modifier.weight(1f),
-                     verticalArrangement = Arrangement.Center,
-                     horizontalAlignment = Alignment.CenterHorizontally
-                 ) {
-                     if (isEmriKodList.isNotEmpty()) {
-                         DropdownField(
-                             label = "İş Emri Kod:",
-                             selectedValue = selectedIsEmriKod,
-                             options = isEmriKodList,
-                             onValueChange = { selectedIsEmriKod = "İş Emri Kod: \n$it" }
-                         )
-                     } else {
-                         Text("İş Emri listesi yükleniyor")
-                     }
-                 }
-                 Column( // Islem Merkezi Kod
-                     modifier = Modifier.weight(1f),
-                     verticalArrangement = Arrangement.Center,
-                     horizontalAlignment = Alignment.CenterHorizontally
-                 ) {
-                     if (islemMerkeziKodList.isNotEmpty()) {
-                         DropdownField(
-                             label = "İşlem Merkezi Kod:",
-                             selectedValue = selectedIslemMerkeziKod,
-                             options = calisanNoList,
-                             onValueChange = { selectedIslemMerkeziKod = "İşlem Merkezi Kod: \n$it" }
-                         )
-                     } else {
-                         Text("İşlem Merkezi listesi yükleniyor")
-                     }
-                 }
-             }*/
-
-
-            Row ( // Yapilan Islem
+            Row( // Yapilan Islem
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ){
+            ) {
                 if (yapilanIslemList.isNotEmpty()) {
                     DropdownField(
                         label = "Yapılan İşlem:",
-                        selectedValue = selectedYapilanIslem,
+                        selectedValue = mainPageViewModel.selectedYapilanIslem,
                         options = yapilanIslemList,
-                        onValueChange = { selectedYapilanIslem = "Yapılan İşlem: $it" }
+                        onValueChange = { mainPageViewModel.selectedYapilanIslem = "Yapılan İşlem: $it" }
                     )
                 } else {
                     Text("Yapılan İşlem listesi yükleniyor")
@@ -230,167 +144,158 @@ fun MainPage(innerPadding : PaddingValues) {
                 if (calisanNoList.isNotEmpty()) {
                     DropdownField(
                         label = "Çalışan No:",
-                        selectedValue = selectedCalisanNo,
+                        selectedValue = mainPageViewModel.selectedCalisanNo,
                         options = calisanNoList,
-                        onValueChange = { selectedCalisanNo = "Çalışan No: $it" }
+                        onValueChange = { mainPageViewModel.selectedCalisanNo = "Çalışan No: $it" }
                     )
                 } else {
                     Text("Çalışan listesi yükleniyor")
                 }
             }
 
-            Row ( // Baslat button
+            Row( // Baslat Button
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ){
+            ) {
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        mainPageViewModel.onStartClicked()
+                    },
+                    enabled = mainPageViewModel.isStartEnabled
+                            && mainPageViewModel.selectedIsEmriKod.isNotEmpty()
+                            && mainPageViewModel.selectedIslemMerkeziKod.isNotEmpty()
+                            && mainPageViewModel.selectedYapilanIslem.isNotEmpty()
+                            && mainPageViewModel.selectedCalisanNo.isNotEmpty(),
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Başlat", fontSize = 16.sp)
                 }
             }
 
-            Row ( // Durus Nedeni Row
+            Row( // Durus Nedeni
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ){
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
+            ) {
+                Column( // Durus Nedeni Dropdown
+                    modifier = Modifier.weight(7f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Column( // Durus Nedenleri Dropdown
-                        modifier = Modifier.weight(7f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (durusNedenleriList.isNotEmpty()) {
-                            DropdownField(
-                                label = "Duruş Nedeni:",
-                                selectedValue = selectedDurusNedenleri,
-                                options = durusNedenleriList,
-                                onValueChange = { selectedDurusNedenleri = "Duruş Nedeni: $it" }
-                            )
-                        } else {
-                            Text("Duruş Nedeni listesi yükleniyor")
-                        }
-                    }
-                    Column( // Durdur Button
-                        modifier = Modifier.weight(3f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Button(
-                            onClick = { /*TODO*/ }
-                        ) {
-                            Text(text = "Durdur", fontSize = 16.sp)
-                        }
-                    }
-                }
-            }
-
-            Row ( // Hata Nedeni Row
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ){
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Column(
-                        modifier = Modifier.weight(7f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if(hataNedenleriList.isNotEmpty()){
-                            DropdownField(
-                                label = "Hata Nedeni:",
-                                selectedValue = selectedHataNedenleri,
-                                options = hataNedenleriList,
-                                onValueChange = { selectedHataNedenleri = "Hata Nedeni: $it" }
-                            )
-                        } else {
-                            Text("Hata Nedeni listesi yükleniyor")
-                        }
-                    }
-
-
-                    Column(
-                        modifier = Modifier.weight(3f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(3f),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            OutlinedTextField(
-                                value = fireAmount,
-                                onValueChange = { fireAmount = it },
-                                label = { Text("Fire") },
-                                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                            )
-                        }
-                    }
-                }
-            }
-
-            Row ( // Uretilen Miktar
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ){
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Column(
-                        modifier = Modifier.weight(7f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = "Üretilen Miktar")
-                    }
-                    Column(
-                        modifier = Modifier.weight(3f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        OutlinedTextField(
-                            value = uretilenAmount,
-                            onValueChange = { uretilenAmount = it },
-                            label = { Text("Miktar") },
-                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    if (durusNedenleriList.isNotEmpty()) {
+                        DropdownField(
+                            label = "Duruş Nedeni:",
+                            selectedValue = mainPageViewModel.selectedStopReason,
+                            options = durusNedenleriList,
+                            onValueChange = {
+                                mainPageViewModel.onStopReasonSelected("Duruş Nedeni: $it")
+                            }
                         )
+                    } else {
+                        Text("Duruş Nedeni listesi yükleniyor")
+                    }
+                }
+                Column( // Durus Nedeni DurdurButton
+                    modifier = Modifier.weight(3f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = {
+                            mainPageViewModel.onStopClicked()
+                        },
+                        enabled = mainPageViewModel.isStopEnabled,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Durdur", fontSize = 16.sp)
                     }
                 }
             }
 
-            Row( // Is Emri Sonlandir Button
+            Row( // Hata Nedeni
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
-            ){
+            ) {
+                Column( // Hata Nedeni Dropdown
+                    modifier = Modifier.weight(7f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (hataNedenleriList.isNotEmpty()) {
+                        DropdownField(
+                            label = "Hata Nedeni:",
+                            selectedValue = mainPageViewModel.selectedHataNedenleri,
+                            options = hataNedenleriList,
+                            onValueChange = { mainPageViewModel.onHataNedeniSelected("Hata Nedeni: $it") }
+                        )
+                    } else {
+                        Text("Hata Nedeni listesi yükleniyor")
+                    }
+                }
+                Column( // Hata Nedeni Fire textfield
+                    modifier = Modifier.weight(3f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedTextField(
+                        value = mainPageViewModel.fireAmount,
+                        onValueChange = { mainPageViewModel.onFireAmountChanged(it) },
+                        label = { Text("Fire") },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
+                }
+            }
+
+            Row( // Uretilen Miktar
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Column(
+                    modifier = Modifier.weight(7f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(text = "Üretilen Miktar")
+                }
+                Column(
+                    modifier = Modifier.weight(3f),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedTextField(
+                        value = mainPageViewModel.uretilenAmount,
+                        onValueChange = { mainPageViewModel.onUretilenAmountChanged(it) },
+                        label = { Text("Miktar") },
+                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                    )
+                }
+            }
+
+            Row( // İş Emri Sonlandır Button
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
                 Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { /*TODO*/ }) {
+                    onClick = {
+                        mainPageViewModel.onTerminateClicked()
+                    },
+                    enabled = !mainPageViewModel.isStartEnabled && mainPageViewModel.isTerminateEnabled && mainPageViewModel.isStopButtonClicked,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text(text = "İş Emri Sonlandır", fontSize = 16.sp)
                 }
             }
