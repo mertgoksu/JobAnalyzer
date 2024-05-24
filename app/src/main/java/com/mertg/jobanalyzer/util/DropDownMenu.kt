@@ -12,13 +12,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun DropdownField(label: String, selectedValue: String, options: List<String>, onValueChange: (String) -> Unit) {
+
     var expanded by remember { mutableStateOf(false) }
+
     Box(modifier = Modifier.fillMaxWidth()) {
-        TextButton(onClick = { expanded = true }) {
-            Text(text = if (selectedValue.isEmpty()) label else selectedValue)
+        TextButton(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { expanded = true }
+        ) {
+            Text(text = if (selectedValue.isEmpty()) label else selectedValue, fontSize = 16.sp)
         }
         DropdownMenu(
             expanded = expanded,

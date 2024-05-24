@@ -69,10 +69,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Lifecycle
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
 
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
-
-    //Firebase
+    // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.8.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
@@ -82,8 +83,9 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
 
     // Compose Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.5.3")
 
-    //Lifecycle
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+    // Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 }
