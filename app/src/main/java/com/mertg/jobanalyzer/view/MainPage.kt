@@ -162,7 +162,7 @@ fun MainPage(innerPadding: PaddingValues) {
             ) {
                 Button(
                     onClick = {
-                        mainPageViewModel.onStartClicked()
+                        mainPageViewModel.onStartClicked(context)
                     },
                     enabled = mainPageViewModel.isStartEnabled
                             && mainPageViewModel.selectedIsEmriKod.isNotEmpty()
@@ -212,7 +212,7 @@ fun MainPage(innerPadding: PaddingValues) {
                         enabled = mainPageViewModel.isStopEnabled,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = "Durdur", fontSize = 16.sp)
+                        Text(text = mainPageViewModel.stopButtonText, fontSize = 16.sp)
                     }
                 }
             }
@@ -282,7 +282,7 @@ fun MainPage(innerPadding: PaddingValues) {
                 }
             }
 
-            Row( // İş Emri Sonlandır Button
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
@@ -291,9 +291,10 @@ fun MainPage(innerPadding: PaddingValues) {
             ) {
                 Button(
                     onClick = {
-                        mainPageViewModel.onTerminateClicked()
+                        mainPageViewModel.onTerminateClicked(context)
                     },
-                    enabled = !mainPageViewModel.isStartEnabled && mainPageViewModel.isTerminateEnabled && mainPageViewModel.isStopButtonClicked,
+                    enabled = !mainPageViewModel.isStartEnabled
+                            && mainPageViewModel.isTerminateEnabled,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "İş Emri Sonlandır", fontSize = 16.sp)
