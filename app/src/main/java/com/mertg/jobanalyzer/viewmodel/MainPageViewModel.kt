@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.util.Date
+
 class MainPageViewModel : ViewModel() {
     private val db = Firebase.firestore
 
@@ -71,7 +72,7 @@ class MainPageViewModel : ViewModel() {
     private fun saveJobPackageToFirebase(context: Context, jobPackage: JobPackage) {
         viewModelScope.launch {
             try {
-                db.collection("YapilanIsGecmisi").add(jobPackage).await()
+                db.collection("JobPackages").add(jobPackage).await()
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Job Package başarıyla kaydedildi!", Toast.LENGTH_SHORT).show()
                 }
@@ -154,6 +155,7 @@ class MainPageViewModel : ViewModel() {
             context.finish()
         }
     }
+
     private fun updateStopEnabledState() {
         isStopEnabled = if (isPaused) true else selectedStopReason.isNotEmpty() && !isStartEnabled
     }
